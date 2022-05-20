@@ -1,0 +1,175 @@
+import java.awt.*;
+import java.awt.event.*;
+
+// Основной класс приложения, реализующий интерфейсы блоков прослушивания
+// (приемников) событий
+public class Main extends Panel implements ActionListener, AdjustmentListener {
+    Panel p1, panUp, panDown, panCenter, pMain;
+    Canvas p2;
+    Button b2, b3, b4, b5;
+    Scrollbar sb;
+    //Choice ch;
+    List colorList;
+    int rw, rh;      // ширина и высота изображаемого прямоугольника
+
+    final static int MAX_RW = 75;
+    final static int MAX_RH = 75;
+
+    public Main() {
+        rw = MAX_RW;
+        rh = MAX_RH;
+        setLayout(new BorderLayout());
+        pMain = new Panel();
+        add(pMain);
+
+        pMain.setLayout(new GridLayout(1, 2));
+        p1 = new Panel(); // панель для элементов управления
+        p1.setLayout(new GridLayout(2, 1));
+        panUp = new Panel();
+
+//panUp.setLayout(new BorderLayout());
+
+        panDown = new Panel();
+        panDown.setLayout(new BorderLayout());
+
+        panCenter = new Panel();
+        panCenter.setLayout(new BorderLayout());
+
+        p1.setLayout(new GridLayout(2, 1));
+        panDown.setLayout(new GridLayout(2, 2, 10, 10));
+        p1.add(panUp);
+        p1.add(panDown);
+        p1.add(panCenter);
+
+        Label label = new Label("Выберите панель:");
+        panCenter.add(label, BorderLayout.CENTER);
+
+        b2 = new Button("A 0/0 ");
+        b2.addActionListener(this); // регистрация блока прослушивания (приемника)
+        panDown.add(b2, BorderLayout.NORTH);
+        panDown.add(b2);
+
+        b3 = new Button("A 0/1");
+        b2.addActionListener(this); // регистрация блока прослушивания (приемника)
+        //panDown.add(b3, BorderLayout.NORTH);
+        panDown.add(b3);
+
+        b4 = new Button("A 1/0");
+        b2.addActionListener(this); // регистрация блока прослушивания (приемника)
+        panDown.add(b4, BorderLayout.SOUTH);
+        //panDown.add(b4);
+
+        b5 = new Button("A 1/1");
+        b2.addActionListener(this); // регистрация блока прослушивания (приемника)
+        panDown.add(b5, BorderLayout.SOUTH);
+        //panDown.add(b5);
+
+
+        // Компонент типа Canvas на основе анонимного внутреннего класса - панель,
+        // используемая для рисования прямоугольника
+        colorList = new List();        //список цветов строки
+        colorList.add("Белый");
+        colorList.add("Красный");
+        colorList.add("Зеленый");
+        colorList.add("Синий");
+        colorList.add("Желтый");
+        colorList.add("Черный");
+
+        // Регистрация и реализация приемника событий от списка на основе
+        // анонимного внутреннего класса, реализующего интерфейс ItemListener
+        colorList.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                Integer acm = (Integer) e.getItem();
+                if (acm.equals(0)) p2.setForeground(Color.white);
+                else if (acm.equals(1)) p2.setForeground(Color.red);
+                else if (acm.equals(2)) p2.setForeground(Color.pink);
+                else if (acm.equals(3)) p2.setForeground(Color.green);
+                else if (acm.equals(4)) p2.setForeground(Color.blue);
+                else if (acm.equals(5)) p2.setForeground(Color.yellow);
+                p2.repaint();        // очистка панели и перерисовка
+            }
+        });
+
+
+        p2 = new Canvas() {
+            public void paint(Graphics g) {
+                if (b2.isEnabled()) { // если кнопка "Paint" недоступна
+
+                    // Размеры панели
+                    int w = p2.getSize().width;
+                    int h = p2.getSize().height;
+
+                    int u = p2.getSize().width;
+                    int n = p2.getSize().height;
+
+                    // Рисование прямоугольника
+                    g.drawRect((w - MAX_RW) / 2, (h - MAX_RH) / 2, rw, rh);
+                    //g.drawRect((u - Max_RU)/2, (n - MAX_RN)/2, ru, rn);
+                }
+            }
+        };
+
+        p2.setBackground(Color.green);
+
+        Label labelPanel = new Label("Выберите цвет панели:");
+        panUp.add(labelPanel, BorderLayout.NORTH);
+        panUp.add(colorList, BorderLayout.NORTH);
+
+
+        pMain.add(p2);
+        pMain.add(p1);
+
+
+    }
+
+    // Реализация блока прослушивания событий от кнопок
+    public void actionPerformed(ActionEvent e) {
+        String ac = e.getActionCommand();
+
+    }
+
+    // Реализация блока прослушивания событий от полосы прокрутки
+    public void adjustmentValueChanged(AdjustmentEvent e) {
+        // Текущие размеры прямоугольника
+        rw = (MAX_RW * e.getValue()) / sb.getMaximum();
+        rh = (MAX_RH * e.getValue()) / sb.getMaximum();
+
+        p2.repaint(); // очистка панели (заполнение фоновым цветом) и перерисовка
+    }
+
+    // Точка хода в программу
+    public static void main(String args[]) {
+        // Объявления и инициализация переменной типа GreetApplication
+        Main panel = new Main();
+  
+  /* Шаблон для размещения компонента-"холста" в контейнере-окне
+     -----------------------------------------------------------
+     Объявления и инициализация переменной типа java.awt.Frame,
+     размещение компонента в окне-фрейме,
+     установка размеров окна,
+     установка местоположения окна на экране,
+     установка видимости окна на экране,
+     регистрация приемника события закрытия окна.
+  */
+        Frame frame = new Frame("An AWT-Based Application");
+        frame.add(panel);
+        frame.setSize(720, 480);
+        frame.setLocation(100, 100);
+        frame.setVisible(true);
+        frame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                System.exit(0);
+            }
+        });
+    }
+}
+
+/* Синтаксис new Canvas(){} указывает компилятору, что код в блоке {} определяет
+   анонимный внутренний класс. В результате компиляции будет получен файл класса 
+   с именем имя_ внешнего_класса$№.class.
+   Внутренний класс имеет доступ ко всем полям и методам своего внешнего класса  
+   (в том числе и private) как к собственным. Элементы внутреннего класса, 
+   напротив, известны только в пределах этого класса и не могут использоваться 
+   внешним классом непосредственно. 
+*/
+
